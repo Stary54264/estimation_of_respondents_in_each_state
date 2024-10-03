@@ -4,3 +4,44 @@ author: "Yanzun Jiang"
 format: pdf
 ---
 
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+raw_data <- read_csv("raw_data.csv")
+```
+
+```{r}
+data <- raw_data %>%
+  filter(EDUCD == 116)  # Replace with the correct code for doctoral degree in your dataset
+
+# Count the number of respondents by state (STATEICP)
+state_doctorate_count <- data %>%
+  group_by(STATEICP) %>%
+  summarise(n = n()) %>%   # Count the number of respondents
+  arrange(desc(n))         # Optional: arrange the results by number of respondents
+
+doctor_in_ca <- state_doctorate_count %>%
+  filter(STATEICP == 71) %>%
+  pull(n)
+
+a <- raw_data %>%
+  group_by(STATEICP) %>%
+  summarise(n = n()) %>%   # Count the number of respondents
+  arrange(desc(n))         # Optional: arrange the results by number of respondents
+
+state_doctorate_count %>% mutate(
+  estimated = round(total_respondents_california * n / doctor_in_ca),
+  actual = a$n,
+  diff = actual - estimated
+)
+```
