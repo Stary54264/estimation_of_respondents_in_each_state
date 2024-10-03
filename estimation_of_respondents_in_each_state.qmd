@@ -1,5 +1,5 @@
 ---
-title: "Estimation of Doctors in Each State"
+title: "Estimation of Respondents in Each State"
 author: "Group 51"
 date: today
 date-format: long
