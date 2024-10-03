@@ -44,13 +44,13 @@ toc: true
    
    -$R_{CA}$ be the ratio of the number of people with doctoral degrees to total respondents in CA.
    
-   -$N_{doctoral_degrees, state}$ be the number people with of doctoral degrees in any other state.
+   -$N_{doctoral \space degrees, state}$ be the number people with of doctoral degrees in any other state.
    
    -$N_{respondents, state}$ be the estimated number of respondents in other states.
 
 2. Application to Other States: For any other state, the estimated number of total respondents can be expressed as:
   
-   $N_{respondents, state}$ = $\frac{N_{doctoral_degrees, state}}{R_{CA}}$
+   $N_{respondents, state}$ = $\frac{N_{doctoral \space degrees, state}}{R_{CA}}$
   
    This uses the ratio observed in California to estimate the total number of respondents based on the number of doctoral degrees in other states.
 
