@@ -4,6 +4,52 @@ author: "Yanzun Jiang"
 format: pdf
 ---
 
+# Instructions on obtaining the data
+
+1. **Go to the IPUMS website** and click on "VISIT SITE" under the IPUMS USA section.
+
+2. Click on **"Get Data"**.
+
+3. Click **"Select Samples"**, uncheck **"Default sample from each year"**, and check only **"ACS"** for the year 2022.
+
+4. Click **"Submit Sample Selections"**.
+
+5. Under **HOUSEHOLD**, hover over **"GEOGRAPHIC"** and add **"STATEICP"** to your cart.
+
+6. Under **PERSON**, hover over **"DEMOGRAPHIC"** and add **"SEX"** to your cart.
+
+7. Under **PERSON**, hover over **"EDUCATION"** and add **"EDUC"** to your cart.
+
+8. In your **Data Cart**, you should now see 4 variables and 1 sample. Click **"View Cart"**.
+
+9. Click **"Create Data Extract"**.
+
+10. Change the **Data Format** from `.dat` to `.csv` and click **"Apply Selections"**.
+
+11. Click **"Submit Extract"**.
+
+12. Wait for the status to become **COMPLETED**, then click **"Download .csv"** under the "Download Data" column.
+
+13. Finally, unzip the downloaded file to access your data.
+
+# Overview of the ratio estimators approach
+
+1. Let:
+   
+   -$R_{CA}$ be the ratio of the number of people with doctoral degrees to total respondents in CA.
+   
+   -$N_{doctoral_degrees, state}$ be the number people with of doctoral degrees in any other state.
+   
+   -$N_{respondents, state}$ be the estimated number of respondents in other states.
+
+2. Application to Other States: For any other state, the estimated number of total respondents can be expressed as:
+  
+   $N_{respondents, state}$ = $\frac{N_{doctoral_degrees, state}}{R_{CA}}$
+  
+   This uses the ratio observed in California to estimate the total number of respondents based on the number of doctoral degrees in other states.
+
+# Summary table of estimated and actual respondents
+
 ```{r}
 #| include: false
 #| warning: false
@@ -11,10 +57,11 @@ format: pdf
 
 # Workspace setup
 library(tidyverse)
+library(knitr)
 ```
 
 ```{r}
-#| include: false
+#| echo: false
 #| warning: false
 #| message: false
 
@@ -23,30 +70,104 @@ data <- read_csv("raw_data.csv")
 ```
 
 ```{r}
+#| label: tbl-data
+#| tbl-cap: Estimated and Actual Respondents
+#| echo: false
 #| warning: false
 #| message: false
 
-# Count the number of doctors by state (STATEICP)
-state_doctor_count <- data %>%
-  filter(EDUCD == 116) %>%
-  group_by(STATEICP) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n))
+state_code = c(
+  'Connecticut' = '01',
+  'Maine' = '02',
+  'Massachusetts' = '03',
+  'New Hampshire' = '04',
+  'Rhode Island' = '05',
+  'Vermont' = '06',
+  'Delaware' = '11',
+  'New Jersey' = '12',
+  'New York' = '13',
+  'Pennsylvania' = '14',
+  'Illinois' = '21',
+  'Indiana' = '22',
+  'Michigan' = '23',
+  'Ohio' = '24',
+  'Wisconsin' = '25',
+  'Iowa' = '31',
+  'Kansas' = '32',
+  'Minnesota' = '33',
+  'Missouri' = '34',
+  'Nebraska' = '35',
+  'North Dakota' = '36',
+  'South Dakota' = '37',
+  'Virginia' = '40',
+  'Alabama' = '41',
+  'Arkansas' = '42',
+  'Florida' = '43',
+  'Georgia' = '44',
+  'Louisiana' = '45',
+  'Mississippi' = '46',
+  'North Carolina' = '47',
+  'South Carolina' = '48',
+  'Texas' = '49',
+  'Kentucky' = '51',
+  'Maryland' = '52',
+  'Oklahoma' = '53',
+  'Tennessee' = '54',
+  'West Virginia' = '56',
+  'Arizona' = '61',
+  'Colorado' = '62',
+  'Idaho' = '63',
+  'Montana' = '64',
+  'Nevada' = '65',
+  'New Mexico' = '66',
+  'Utah' = '67',
+  'Wyoming' = '68',
+  'California' = '71',
+  'Oregon' = '72',
+  'Washington' = '73',
+  'Alaska' = '81',
+  'Hawaii' = '82',
+  'Puerto Rico' = '83',
+  'State groupings (1980 Urban/rural sample)' = '96',
+  'Military/Mil. Reservations' = '97',
+  'District of Columbia' = '98',
+  'State not identified' = '99'
+)
 
-# Record number of doctors in CA
-doctor_in_ca <- state_doctor_count %>%
-  filter(STATEICP == 71) %>%
+# Count the number of respondents in each state
+respondent <- data |>
+  group_by(STATEICP) |>
+  summarise(n = n())
+
+# Count the number of doctors in each state
+doctor <- data |>
+  filter(EDUCD == 116) |>
+  group_by(STATEICP) |>
+  summarise(n = n())
+
+# Record number of respondents in CA
+respondent_ca <- respondent |>
+  filter(STATEICP == 71) |>
   pull(n)
 
-state_respondant_count <- data %>%
-  group_by(STATEICP) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n))
+# Record number of doctors in CA
+doctor_ca <- doctor |>
+  filter(STATEICP == 71) |>
+  pull(n)
 
-total_respondents_california <- 391171
-state_doctor_count %>% mutate(
-  estimated = round(total_respondents_california * n / doctor_in_ca),
-  actual = state_respondant_count$n,
-  diff = actual - estimated
-)
+# Create the table of estimated and actual respondents
+estimates <- doctor |>
+  mutate(
+    estimated = round(respondent_ca * n / doctor_ca),
+    actual = respondent$n,
+    diff = actual - estimated) |>
+  rename(state_id = STATEICP) |>
+  mutate(state_id = recode(state_id, !!!state_code)) |>
+  select(-n)
+
+kable(estimates, format = "markdown")
 ```
+
+# Explanation of the differences
+
+If we estimate the total number of respondents using the ratio estimator approach with Laplace’s method, we are assuming that the proportion of people with doctoral degrees is the same across all states. However, this is not necessarily the case. California, with its many large universities and research institutions, likely has a higher concentration of individuals with doctoral degrees. As a result, the doctor-to-respondent ratio in California would be higher than in other states, leading to an underestimate of the total number of respondents in those states.
