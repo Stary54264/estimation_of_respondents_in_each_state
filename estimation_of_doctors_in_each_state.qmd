@@ -9,6 +9,7 @@ format: pdf
 #| warning: false
 #| message: false
 
+# Workspace setup
 library(tidyverse)
 ```
 
@@ -17,31 +18,35 @@ library(tidyverse)
 #| warning: false
 #| message: false
 
-raw_data <- read_csv("raw_data.csv")
+# Read data from the data file from IPUMS
+data <- read_csv("raw_data.csv")
 ```
 
 ```{r}
-data <- raw_data %>%
-  filter(EDUCD == 116)  # Replace with the correct code for doctoral degree in your dataset
+#| warning: false
+#| message: false
 
-# Count the number of respondents by state (STATEICP)
-state_doctorate_count <- data %>%
+# Count the number of doctors by state (STATEICP)
+state_doctor_count <- data %>%
+  filter(EDUCD == 116) %>%
   group_by(STATEICP) %>%
-  summarise(n = n()) %>%   # Count the number of respondents
-  arrange(desc(n))         # Optional: arrange the results by number of respondents
+  summarise(n = n()) %>%
+  arrange(desc(n))
 
-doctor_in_ca <- state_doctorate_count %>%
+# Record number of doctors in CA
+doctor_in_ca <- state_doctor_count %>%
   filter(STATEICP == 71) %>%
   pull(n)
 
-a <- raw_data %>%
+state_respondant_count <- data %>%
   group_by(STATEICP) %>%
-  summarise(n = n()) %>%   # Count the number of respondents
-  arrange(desc(n))         # Optional: arrange the results by number of respondents
+  summarise(n = n()) %>%
+  arrange(desc(n))
 
-state_doctorate_count %>% mutate(
+total_respondents_california <- 391171
+state_doctor_count %>% mutate(
   estimated = round(total_respondents_california * n / doctor_in_ca),
-  actual = a$n,
+  actual = state_respondant_count$n,
   diff = actual - estimated
 )
 ```
