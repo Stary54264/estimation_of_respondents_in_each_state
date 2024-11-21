@@ -1,44 +1,30 @@
 ---
 title: "Estimation of Respondents in Each State"
-author: "Group 51"
+author: "Wen Han Zhao, Yun Chu, Felix Li, Yanzun Jiang"
 date: today
 date-format: long
+thanks: "Code and data are available at: [https://github.com/chuyun2024/Estimation-of-Doctors/tree/main]"
 format: pdf
 number-sections: true
 toc: true
+bibliography: references.bib
 ---
 
 \newpage
 
-# Instructions on Obtaining the Data
+# Introduction{#sec-intro}
 
-1. **Go to the IPUMS website** and click on "VISIT SITE" under the IPUMS USA section.
+The American Community Survey (ACS) conducted by the U.S. Census Bureau provides vital demographic, social, economic, and housing data that supports informed decision-making across various sectors. Using the 2022 ACS dataset accessed through IPUMS, this report delves into state-level variations in educational attainment, with a specific focus on respondents holding doctoral degrees. By analyzing these patterns, we aim to shed light on the distribution of advanced educational qualifications across the United States.
 
-2. Click on **"Get Data"**.
+To complement the analysis, a ratio estimator method is applied, leveraging the known respondent total for California to estimate total respondents across other states. This approach not only facilitates comparisons but also provides insights into the broader demographic landscape, enriching our understanding of educational trends and their implications.
 
-3. Click **"Select Samples"**, uncheck **"Default sample from each year"**, and check only **"ACS"** for the year 2022.
+This report begins by outlining the methodology used for data extraction and analysis, followed by detailed findings on the prevalence of doctoral degrees across states. The discussion highlights key observations, potential limitations, and the broader significance of these trends for policymaking and resource allocation.
 
-4. Click **"Submit Sample Selections"**.
+This report uses the IPUMS data [@ipums_acs_2022] and it uses the libraries tidyverse [@tidyverse] and knitr [@knitr] on R [@citeR] codes. @sec-overview contains the overview of the Ratio Estimators Approach. @sec-summary contains all the summary table of estimated and actual respondents by state. @sec-explanation contains the a brief explanation of the differences appeared due to methodology used. Lastly, @sec-appendix contains information to gather data. 
 
-5. Under **HOUSEHOLD**, hover over **"GEOGRAPHIC"** and add **"STATEICP"** to your cart.
+# Overview of the Ratio Estimators Approach {#sec-overview}
 
-6. Under **PERSON**, hover over **"DEMOGRAPHIC"** and add **"SEX"** to your cart.
-
-7. Under **PERSON**, hover over **"EDUCATION"** and add **"EDUC"** to your cart.
-
-8. In your **Data Cart**, you should now see 4 variables and 1 sample. Click **"View Cart"**.
-
-9. Click **"Create Data Extract"**.
-
-10. Change the **Data Format** from `.dat` to `.csv` and click **"Apply Selections"**.
-
-11. Click **"Submit Extract"**.
-
-12. Wait for the status to become **COMPLETED**, then click **"Download .csv"** under the "Download Data" column.
-
-13. Finally, unzip the downloaded file to access your data.
-
-# Overview of the Ratio Estimators Approach
+## Estimation Formula and Explanation
 
 1. Let:
    
@@ -53,8 +39,11 @@ toc: true
    $N_{respondents, state}$ = $\frac{N_{doctoral \space degrees, state}}{R_{CA}}$
   
    This uses the ratio observed in California to estimate the total number of respondents based on the number of doctoral degrees in other states.
+    
+This approach leverages the assumption that the proportion of doctoral degree holders within the survey population is relatively consistent across states, allowing us to use California as a reference point for estimation. While this simplifies the calculation and provides a practical means of estimating total respondents, it is important to recognize that state-specific factors, such as varying levels of educational attainment, population density, and demographic composition, may cause deviations from this assumed uniformity. Despite these potential limitations, this method is a useful starting point for approximating total respondent numbers in the absence of complete data for all states.
 
-# Summary Table of Estimated and Actual Respondents
+
+# Summary Table of Estimated and Actual Respondents {#sec-summary}
 
 ```{r}
 #| include: false
@@ -175,6 +164,46 @@ estimates <- doctor |>
 kable(estimates, format = "markdown")
 ```
 
-# Explanation of Differences
+# Explanation of Differences {#sec-explanation}
 
 If we estimate the total number of respondents using the ratio estimator approach with Laplace’s method, we are assuming that the proportion of people with doctoral degrees is the same across all states. However, this is not necessarily the case. California, with its many large universities and research institutions, likely has a higher concentration of individuals with doctoral degrees. As a result, the doctor-to-respondent ratio in California would be higher than in other states, leading to an underestimate of the total number of respondents in those states.
+
+\newpage
+
+\appendix
+
+# Appendix {#sec-appendix}
+
+## Instructions on Obtaining the Data 
+
+
+1. **Go to the IPUMS website** and click on "VISIT SITE" under the IPUMS USA section.
+
+2. Click on **"Get Data"**.
+
+3. Click **"Select Samples"**, uncheck **"Default sample from each year"**, and check only **"ACS"** for the year 2022.
+
+4. Click **"Submit Sample Selections"**.
+
+5. Under **HOUSEHOLD**, hover over **"GEOGRAPHIC"** and add **"STATEICP"** to your cart.
+
+6. Under **PERSON**, hover over **"DEMOGRAPHIC"** and add **"SEX"** to your cart.
+
+7. Under **PERSON**, hover over **"EDUCATION"** and add **"EDUC"** to your cart.
+
+8. In your **Data Cart**, you should now see 4 variables and 1 sample. Click **"View Cart"**.
+
+9. Click **"Create Data Extract"**.
+
+10. Change the **Data Format** from `.dat` to `.csv` and click **"Apply Selections"**.
+
+11. Click **"Submit Extract"**.
+
+12. Wait for the status to become **COMPLETED**, then click **"Download .csv"** under the "Download Data" column.
+
+13. Finally, unzip the downloaded file to access your data.
+
+\newpage
+
+# References {#sec-reference}
+
